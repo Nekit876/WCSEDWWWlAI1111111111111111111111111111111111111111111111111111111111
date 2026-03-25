@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { getDb, save } from './store.js'
 import { canGenerate, bumpGenerationCount } from './license.js'
+import { getInfisicalSecret } from './infisical.js'
 
 function buildPrompt({ topic, subject, difficulty, count, type }) {
   const mode = type === 'test' ? 'тест с вариантами' : type === 'open' ? 'открытые вопросы' : 'смешанный формат'
@@ -9,13 +10,16 @@ function buildPrompt({ topic, subject, difficulty, count, type }) {
 
 async function getApiKey() {
   const db = getDb()
-  const url = db.data.settings.apiKeyUrl
   
-  // 1. Пытаемся взять из GitHub
+  // 1. Сначала пробуем Infisical (open_key)
+  const infisicalKey = await getInfisicalSecret('open_key')
+  if (infisicalKey) return infisicalKey;
+
+  // 2. Если в Infisical нет, пробуем старый GitHub (fallback)
+  const url = db.data.settings.apiKeyUrl
   if (url) {
     try {
       const res = await axios.get(url, { timeout: 8000 })
-      // Если в файле на GitHub ключ лежит просто в поле "apiKey" или в корне как строка
       const key = res.data?.apiKey || (typeof res.data === 'string' ? res.data : null)
       if (key) return key
     } catch (err) {
@@ -23,7 +27,7 @@ async function getApiKey() {
     }
   }
   
-  // 2. Fallback на локальный ключ из настроек (если есть)
+  // 3. Fallback на локальный ключ из настроек
   if (db.data.settings.userApiKey) return db.data.settings.userApiKey
   
   return ''

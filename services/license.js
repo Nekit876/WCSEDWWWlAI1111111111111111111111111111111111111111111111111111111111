@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getDb, save } from './store.js'
+import { getInfisicalSecret } from './infisical.js'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -17,7 +18,32 @@ export async function checkLicenseAtStartup(userEmail) {
   const now = today()
   const url = db.data.settings.licenseUrl
 
-  // 1. Пытаемся найти лицензию по email в удаленном списке (GitHub)
+  // 1. Сначала пробуем Infisical (license)
+  const infisicalLicense = await getInfisicalSecret('license')
+  if (infisicalLicense && userEmail) {
+    // В Infisical лицензия может быть в формате JSON: { "licenses": [{ "email": "...", "type": "pro" }] }
+    try {
+      const data = JSON.parse(infisicalLicense)
+      const list = data.licenses || []
+      const found = list.find(l => l.email === userEmail)
+      if (found && (!found.expires || found.expires >= now)) {
+        db.data.settings.plan = choosePlan(found.type)
+        db.data.license = { ...found, cachedAt: new Date().toISOString() }
+        await save()
+        return
+      }
+    } catch (err) {
+      // Если это просто строка с ключом
+      if (infisicalLicense === userEmail) {
+        db.data.settings.plan = 'pro'
+        db.data.license = { email: userEmail, type: 'pro', cachedAt: new Date().toISOString() }
+        await save()
+        return
+      }
+    }
+  }
+
+  // 2. Fallback на GitHub
   if (url && userEmail) {
     try {
       const res = await axios.get(url, { timeout: 5000 })
