@@ -1,4 +1,5 @@
-import { InfisicalClient } from '@infisical/sdk';
+import pkg from '@infisical/sdk';
+const { InfisicalClient } = pkg;
 import { getDb, save } from './store.js';
 
 const INFISICAL_TOKEN = 'st.3c4e45c6-a523-49a4-9761-bd4040e817cd.6841e9afbb3eba29bbd61c24fbd75a1c.0f78a0301d15035c7c38c607813c21ba';
