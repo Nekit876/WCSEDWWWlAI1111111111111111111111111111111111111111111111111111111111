@@ -1,0 +1,74 @@
+{
+  "name": "schoolai-testgen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desktop AI-генератор тестов для учителей на Electron + React",
+  "license": "MIT",
+  "main": "main/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c blue,green \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "cd renderer && vite",
+    "dev:electron": "cross-env VITE_DEV_SERVER=true electron .",
+    "build:renderer": "cd renderer && vite build",
+    "build": "npm run build:renderer && electron-builder",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^6.1.3",
+    "@supabase/supabase-js": "^2.100.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "axios": "^1.7.7",
+    "docx": "^8.5.0",
+    "electron-store": "^8.2.0",
+    "framer-motion": "^12.38.0",
+    "jsonwebtoken": "^9.0.2",
+    "lowdb": "^6.0.1",
+    "lucide-react": "^1.6.0",
+    "nanoid": "^5.0.7",
+    "pdfkit": "^0.15.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^6.22.3",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.0"
+  },
+  "build": {
+    "appId": "com.schoolai.testgen",
+    "productName": "SchoolAI TestGen",
+    "asar": true,
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "main/**",
+      "services/**",
+      "renderer/dist/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "publisherName": "SchoolAI"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    }
+  }
+}

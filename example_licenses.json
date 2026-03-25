@@ -1,0 +1,14 @@
+{
+  "licenses": [
+    {
+      "key": "ABC-123-PRO",
+      "type": "pro",
+      "expires": "2026-12-31"
+    },
+    {
+      "key": "XYZ-789-BASIC",
+      "type": "basic",
+      "expires": "2026-12-31"
+    }
+  ]
+}

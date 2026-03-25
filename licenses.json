@@ -1,0 +1,14 @@
+{
+  "licenses": [
+    {
+      "email": "teacher@example.com",
+      "type": "pro",
+      "expires": "2030-01-01"
+    },
+    {
+      "key": "ADMIN-123",
+      "type": "pro",
+      "expires": "2030-01-01"
+    }
+  ]
+}
