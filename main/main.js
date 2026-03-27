@@ -138,6 +138,13 @@ ipcMain.handle('history:get', async () => {
   return db.data.history
 })
 
+ipcMain.handle('history:delete', async (_e, id) => {
+  const db = getDb()
+  db.data.history = db.data.history.filter(item => item.id !== id)
+  await save()
+  return { ok: true }
+})
+
 ipcMain.handle('ai:generate', async (_e, payload) => {
   return await generateTest(payload, (delta) => {
     mainWindow.webContents.send('ai:stream', delta)

@@ -10,6 +10,13 @@ export async function exportAsPdf(filePath, content) {
   const doc = new PDFDocument()
   const stream = fs.createWriteStream(filePath)
   doc.pipe(stream)
+  
+  // Попытка загрузить шрифт с поддержкой кириллицы (Windows)
+  const fontPath = 'C:\\Windows\\Fonts\\arial.ttf'
+  if (fs.existsSync(fontPath)) {
+    doc.font(fontPath)
+  }
+  
   doc.fontSize(12).text(content, { align: 'left' })
   doc.end()
   await new Promise(res => stream.on('finish', res))

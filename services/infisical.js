@@ -1,5 +1,5 @@
 import infisicalSdk from '@infisical/sdk';
-const { InfisicalClient } = infisicalSdk;
+const InfisicalClient = infisicalSdk.InfisicalClient || infisicalSdk.default?.InfisicalClient || infisicalSdk;
 import axios from 'axios';
 
 const INFISICAL_TOKEN = 'st.9509204e-5acc-45ce-a317-d9f268323f68.c1766c072448185b2066a3ef54df0304.fd1a04fe1222d6fe1a45663fca246e0a';

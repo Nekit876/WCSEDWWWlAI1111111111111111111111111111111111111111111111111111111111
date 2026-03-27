@@ -101,12 +101,12 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-xl shadow-primary-500/20">
-            <Zap className="mb-4 opacity-50" size={32} />
-            <h3 className="text-xl font-bold mb-2">Перейти на PRO</h3>
-            <p className="text-primary-100 text-sm mb-6 leading-relaxed">Получите доступ к лучшим моделям и неограниченной генерации тестов.</p>
-            <button className="w-full bg-white text-primary-600 font-bold py-3 rounded-xl hover:bg-primary-50 transition-colors shadow-lg">
-              Узнать больше
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20">
+            <HelpCircle className="mb-4 opacity-50" size={32} />
+            <h3 className="text-xl font-bold mb-2">Нужна помощь?</h3>
+            <p className="text-indigo-100 text-sm mb-6 leading-relaxed">Если у вас возникли вопросы или проблемы, напишите в нашу поддержку.</p>
+            <button className="w-full bg-white text-indigo-600 font-bold py-3 rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
+              Написать нам
             </button>
           </div>
         </div>

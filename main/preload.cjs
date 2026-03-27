@@ -13,6 +13,7 @@ try {
     getSettings: () => ipcRenderer.invoke('settings:get'),
     setSetting: (key, value) => ipcRenderer.invoke('settings:set', { key, value }),
     getHistory: () => ipcRenderer.invoke('history:get'),
+    deleteHistory: (id) => ipcRenderer.invoke('history:delete', id),
     sync: () => ipcRenderer.invoke('git:sync'),
     generate: (payload) => ipcRenderer.invoke('ai:generate', payload),
     onAIStream: (cb) => {

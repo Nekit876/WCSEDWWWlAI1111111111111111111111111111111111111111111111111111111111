@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 const Dashboard = () => {
   const [topic, setTopic] = useState('')
   const [subject, setSubject] = useState('')
+  const [grade, setGrade] = useState('')
   const [difficulty, setDifficulty] = useState('middle')
   const [count, setCount] = useState(10)
   const [type, setType] = useState('test')
@@ -27,7 +28,7 @@ const Dashboard = () => {
     setStreamData('')
     
     try {
-      const res = await window.api.generate({ topic, subject, difficulty, count, type, includeAnswers })
+      const res = await window.api.generate({ topic, subject, grade, difficulty, count, type, includeAnswers })
       if (res.ok) {
         setResult(res.data)
         toast.success('Тест успешно сгенерирован!')
@@ -122,18 +123,33 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Предмет</label>
-                <div className="relative group">
-                  <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all dark:text-white placeholder:text-slate-400"
-                    placeholder="Напр: Физика"
-                    required
-                  />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Предмет</label>
+                  <div className="relative group">
+                    <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all dark:text-white placeholder:text-slate-400"
+                      placeholder="Напр: Физика"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Класс</label>
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      value={grade}
+                      onChange={(e) => setGrade(e.target.value)}
+                      className="w-full px-4 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all dark:text-white placeholder:text-slate-400 text-center"
+                      placeholder="Напр: 9"
+                    />
+                  </div>
                 </div>
               </div>
 
