@@ -18,8 +18,8 @@ export async function checkLicenseAtStartup(userEmail) {
   const now = today()
   const url = db.data.settings.licenseUrl
 
-  // 1. Сначала пробуем Infisical (license)
-  const infisicalLicense = await getInfisicalSecret('license')
+  // 1. Сначала пробуем Infisical (License)
+  const infisicalLicense = await getInfisicalSecret('License')
   if (infisicalLicense && userEmail) {
     // В Infisical лицензия может быть в формате JSON: { "licenses": [{ "email": "...", "type": "pro" }] }
     try {
