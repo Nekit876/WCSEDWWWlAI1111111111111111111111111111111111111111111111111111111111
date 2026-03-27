@@ -149,31 +149,53 @@ const Settings = () => {
             </div>
           </section>
 
-          {/* AI Settings Section */}
+          {/* Pricing Plans Section */}
           <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
              <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600 dark:text-primary-400">
-                <Globe size={20} />
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400">
+                <Zap size={20} />
               </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Конфигурация AI</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Тарифные планы</h2>
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Ваш OpenRouter API Key</label>
-                <div className="relative group">
-                  <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
-                  <input
-                    type="password"
-                    value={settings.userApiKey || ''}
-                    onChange={(e) => setSettings(prev => ({ ...prev, userApiKey: e.target.value }))}
-                    onBlur={(e) => handleSaveSetting('userApiKey', e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all dark:text-white"
-                    placeholder="sk-or-v1-..."
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { 
+                  name: 'FREE', 
+                  price: '0₽', 
+                  features: ['5 генераций в день', 'Базовые модели', 'Экспорт в TXT'],
+                  current: user?.plan === 'free'
+                },
+                { 
+                  name: 'BASIC', 
+                  price: '490₽', 
+                  features: ['50 генераций в день', 'Улучшенные модели', 'Экспорт PDF/DOCX'],
+                  current: user?.plan === 'basic'
+                },
+                { 
+                  name: 'PRO', 
+                  price: '990₽', 
+                  features: ['Безлимит', 'Самые мощные модели', 'Приоритетная поддержка'],
+                  current: user?.plan === 'pro'
+                }
+              ].map((plan) => (
+                <div key={plan.name} className={`p-5 rounded-2xl border ${plan.current ? 'border-primary-500 bg-primary-50/30 dark:bg-primary-900/10' : 'border-slate-100 dark:border-slate-800'}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${plan.current ? 'bg-primary-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                      {plan.name}
+                    </span>
+                    <span className="font-bold text-slate-900 dark:text-white">{plan.price}</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2 italic">Ключ сохраняется только на вашем ПК (если не подгружен из GitHub)</p>
-              </div>
+              ))}
             </div>
           </section>
 

@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [difficulty, setDifficulty] = useState('middle')
   const [count, setCount] = useState(10)
   const [type, setType] = useState('test')
+  const [includeAnswers, setIncludeAnswers] = useState(true)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [streamData, setStreamData] = useState('')
@@ -26,7 +27,7 @@ const Dashboard = () => {
     setStreamData('')
     
     try {
-      const res = await window.api.generate({ topic, subject, difficulty, count, type })
+      const res = await window.api.generate({ topic, subject, difficulty, count, type, includeAnswers })
       if (res.ok) {
         setResult(res.data)
         toast.success('Тест успешно сгенерирован!')
@@ -40,7 +41,10 @@ const Dashboard = () => {
     }
   }
 
-  const formatContentForExport = (data, includeAnswers = true) => {
+  const formatContentForExport = (data, userWantsAnswers = true) => {
+    // Приоритет: если пользователь в форме отключил ответы, то в экспорте их тоже не будет
+    const showAnswers = data.input.includeAnswers !== false && userWantsAnswers;
+    
     let text = `Тест по теме: ${data.input.topic}\nПредмет: ${data.input.subject}\nСложность: ${data.input.difficulty}\n\n`
     data.output.questions.forEach((q, i) => {
       text += `${i + 1}. ${q.question}\n`
@@ -49,7 +53,7 @@ const Dashboard = () => {
           text += `   ${String.fromCharCode(97 + j)}) ${opt}\n`
         })
       }
-      if (includeAnswers) {
+      if (showAnswers) {
         text += `   Ответ: ${q.answer}\n`
         if (q.explanation) text += `   Пояснение: ${q.explanation}\n`
       }
@@ -185,6 +189,22 @@ const Dashboard = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-2xl">
+                <div>
+                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">С ответами</h3>
+                  <p className="text-[9px] text-slate-400">Включить пояснения</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIncludeAnswers(!includeAnswers)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${includeAnswers ? 'bg-primary-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${includeAnswers ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </button>
               </div>
 
               <button
@@ -334,18 +354,20 @@ const Dashboard = () => {
                                 </div>
                               )}
 
-                              <div className="bg-primary-50/50 dark:bg-primary-900/10 border-l-4 border-primary-500 p-4 rounded-r-xl mt-4">
-                                <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 text-xs font-black uppercase mb-1 tracking-widest">
-                                  <CheckCircle size={14} />
-                                  Правильный ответ
+                              {result.input.includeAnswers !== false && (
+                                <div className="bg-primary-50/50 dark:bg-primary-900/10 border-l-4 border-primary-500 p-4 rounded-r-xl mt-4">
+                                  <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 text-xs font-black uppercase mb-1 tracking-widest">
+                                    <CheckCircle size={14} />
+                                    Правильный ответ
+                                  </div>
+                                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{q.answer}</p>
+                                  {q.explanation && (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed italic">
+                                      {q.explanation}
+                                    </p>
+                                  )}
                                 </div>
-                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{q.answer}</p>
-                                {q.explanation && (
-                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed italic">
-                                    {q.explanation}
-                                  </p>
-                                )}
-                              </div>
+                              )}
                             </div>
                           </div>
                         </div>
