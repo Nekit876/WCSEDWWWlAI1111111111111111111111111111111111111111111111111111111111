@@ -14,6 +14,9 @@ try {
     setSetting: (key, value) => ipcRenderer.invoke('settings:set', { key, value }),
     getHistory: () => ipcRenderer.invoke('history:get'),
     deleteHistory: (id) => ipcRenderer.invoke('history:delete', id),
+    favoriteHistory: (id, isFavorite) => ipcRenderer.invoke('history:favorite', { id, isFavorite }),
+    syncHistory: () => ipcRenderer.invoke('history:sync'),
+    refreshLicense: () => ipcRenderer.invoke('license:refresh'),
     sync: () => ipcRenderer.invoke('git:sync'),
     generate: (payload) => ipcRenderer.invoke('ai:generate', payload),
     onAIStream: (cb) => {

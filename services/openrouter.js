@@ -121,9 +121,36 @@ export async function generateTest(payload, onStream) {
       output: parsed,
       createdAt: new Date().toISOString()
     }
+    // Сохраняем в локальную базу
     db.data.history.unshift(record)
     await bumpGenerationCount()
     await save()
+
+    // Синхронизация с облаком Supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data, error } = await supabase.from('history').insert({
+          user_id: user.id,
+          topic: payload.topic,
+          subject: payload.subject,
+          grade: payload.grade,
+          difficulty: payload.difficulty,
+          type: payload.type,
+          questions: record.output.questions,
+          created_at: record.createdAt
+        }).select('id').single()
+
+        if (!error && data) {
+          // Обновляем локальный ID на облачный для синхронизации
+          record.id = data.id
+          await save()
+        }
+      }
+    } catch (err) {
+      console.error('Cloud history sync failed:', err.message)
+    }
+
     return { ok: true, data: record }
   } catch (err) {
     console.error('OpenRouter Error:', err.response?.data || err.message)

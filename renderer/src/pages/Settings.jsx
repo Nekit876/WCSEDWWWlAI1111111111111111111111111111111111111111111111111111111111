@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { toast, Toaster } from 'react-hot-toast'
-import { Settings as SettingsIcon, Key, Globe, Layout, User, ShieldCheck, Zap, HelpCircle, Save, Moon, Sun } from 'lucide-react'
+import { Settings as SettingsIcon, Key, Globe, Layout, User, ShieldCheck, Zap, HelpCircle, Save, Moon, Sun, RefreshCcw } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { motion } from 'framer-motion'
 
@@ -62,134 +62,219 @@ const Settings = () => {
     }
   }
 
+  const handleRefreshLicense = async () => {
+    setLoading(true)
+    try {
+      const res = await window.api.refreshLicense()
+      toast.success(`Лицензия обновлена! Тариф: ${res.type || 'free'}`)
+      const profileRes = await window.api.profile(token)
+      setAuth(token, profileRes.profile)
+    } catch (err) {
+      toast.error('Ошибка обновления')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="max-w-4xl mx-auto pb-20">
+    <div className="max-w-5xl mx-auto px-4 py-8 pb-20">
       <Toaster position="top-right" />
       
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-3">
-          <SettingsIcon className="text-primary-500" />
-          Настройки
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">Управление аккаунтом, лицензиями и параметрами AI</p>
-      </header>
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-16"
+      >
+        <div className="flex items-center gap-6 mb-4">
+          <div className="p-4 bg-primary-600 rounded-[24px] shadow-lg shadow-primary-500/20">
+            <SettingsIcon className="text-white w-8 h-8" />
+          </div>
+          <h1 className="text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            Настройки <span className="text-slate-400 font-light">аккаунта</span>
+          </h1>
+        </div>
+        <p className="text-slate-500 dark:text-slate-400 text-lg font-medium ml-1">Управляйте подпиской, ключами и интерфейсом приложения</p>
+      </motion.header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Profile Card */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden relative group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <User size={80} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Left: Profile & Support */}
+        <div className="lg:col-span-4 space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-white dark:bg-slate-900 rounded-[40px] p-8 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/20 dark:shadow-none relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+              <User size={120} />
             </div>
             <div className="relative z-10">
-              <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 mb-4 shadow-sm border border-primary-200 dark:border-primary-800">
-                <User size={32} />
+              <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-[28px] flex items-center justify-center text-primary-600 dark:text-primary-400 mb-8 border border-primary-100 dark:border-primary-800 shadow-inner">
+                <User size={40} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{user?.email}</h3>
-              <p className="text-xs text-slate-500 font-medium mb-6 uppercase tracking-wider mt-1">Преподаватель</p>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white truncate mb-1">{user?.email}</h3>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-8">Зарегистрированный пользователь</p>
               
-              <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Тариф:</span>
-                  <span className="font-bold text-primary-600 dark:text-primary-400 uppercase">{user?.plan}</span>
+              <div className="space-y-4 pt-8 border-t border-slate-50 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Тариф</span>
+                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                    user?.plan === 'pro' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                  }`}>
+                    {user?.plan}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Генераций:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{user?.generations || 0}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Генераций</span>
+                  <span className="text-lg font-black text-slate-900 dark:text-white">{user?.generations || 0}</span>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/20">
-            <HelpCircle className="mb-4 opacity-50" size={32} />
-            <h3 className="text-xl font-bold mb-2">Нужна помощь?</h3>
-            <p className="text-indigo-100 text-sm mb-6 leading-relaxed">Если у вас возникли вопросы или проблемы, напишите в нашу поддержку.</p>
-            <button className="w-full bg-white text-indigo-600 font-bold py-3 rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
-              Написать нам
-            </button>
-          </div>
+              <button 
+                onClick={handleRefreshLicense}
+                disabled={loading}
+                className="w-full mt-10 flex items-center justify-center gap-3 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-slate-900/10"
+              >
+                <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+                Обновить статус
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-[40px] p-8 text-white shadow-2xl shadow-primary-500/30 relative overflow-hidden"
+          >
+            <div className="absolute -bottom-10 -right-10 opacity-20 rotate-12">
+              <HelpCircle size={160} />
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-2xl font-black mb-3 tracking-tight">Поддержка</h3>
+              <p className="text-primary-50/80 text-sm mb-8 leading-relaxed font-medium">Возникли вопросы? Наша команда всегда готова помочь вам с использованием SchoolAI.</p>
+              <a 
+                href="https://t.me/u124557" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary-600 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primary-50 transition-all shadow-xl active:scale-95"
+              >
+                Написать в Telegram
+              </a>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Settings Sections */}
-        <div className="md:col-span-2 space-y-8">
+        {/* Right: Settings Content */}
+        <div className="lg:col-span-8 space-y-10">
           {/* License Section */}
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-amber-600 dark:text-amber-400">
-                <ShieldCheck size={20} />
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-slate-900 rounded-[48px] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/10 dark:shadow-none"
+          >
+            <div className="flex items-center gap-4 mb-10">
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/50">
+                <ShieldCheck size={24} />
               </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Лицензирование</h2>
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Активация</h2>
+                <p className="text-xs text-slate-400 font-bold tracking-widest uppercase mt-1">Лицензионный доступ</p>
+              </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Ключ активации</label>
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={settings.licenseKey || ''}
-                    onChange={(e) => setSettings(prev => ({ ...prev, licenseKey: e.target.value }))}
-                    className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all dark:text-white"
-                    placeholder="ABC-123-XYZ"
-                  />
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Ключ доступа</label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="relative flex-1 group">
+                    <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary-500 transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={settings.licenseKey || ''}
+                      onChange={(e) => setSettings(prev => ({ ...prev, licenseKey: e.target.value }))}
+                      className="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-[24px] outline-none focus:ring-4 focus:ring-primary-500/10 transition-all dark:text-white font-bold placeholder:text-slate-300"
+                      placeholder="XXXX-XXXX-XXXX-XXXX"
+                    />
+                  </div>
                   <button 
                     onClick={handleValidateLicense}
                     disabled={loading}
-                    className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
+                    className="px-10 py-5 bg-primary-600 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-[24px] hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50 shadow-xl shadow-primary-500/20"
                   >
                     Активировать
                   </button>
                 </div>
-                <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-2">
-                  <HelpCircle size={12} />
-                  Введите ключ, полученный при покупке подписки
-                </p>
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium ml-1">
+                  <HelpCircle size={14} className="text-slate-300" />
+                  Введите ключ, полученный после оплаты тарифа
+                </div>
               </div>
             </div>
-          </section>
+          </motion.section>
 
           {/* Pricing Plans Section */}
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-             <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400">
-                <Zap size={20} />
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white dark:bg-slate-900 rounded-[48px] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/10 dark:shadow-none"
+          >
+             <div className="flex items-center gap-4 mb-10">
+              <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-2xl text-green-600 dark:text-green-400 border border-green-100 dark:border-green-800/50">
+                <Zap size={24} />
               </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Тарифные планы</h2>
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Тарифы</h2>
+                <p className="text-xs text-slate-400 font-bold tracking-widest uppercase mt-1">Выберите свой уровень</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 { 
                   name: 'FREE', 
                   price: '0₽', 
                   features: ['5 генераций в день', 'Базовые модели', 'Экспорт в TXT'],
-                  current: user?.plan === 'free'
+                  current: user?.plan === 'free',
+                  color: 'primary'
                 },
                 { 
                   name: 'BASIC', 
                   price: '490₽', 
                   features: ['50 генераций в день', 'Улучшенные модели', 'Экспорт PDF/DOCX'],
-                  current: user?.plan === 'basic'
+                  current: user?.plan === 'basic',
+                  color: 'indigo'
                 },
                 { 
                   name: 'PRO', 
                   price: '990₽', 
-                  features: ['Безлимит', 'Самые мощные модели', 'Приоритетная поддержка'],
-                  current: user?.plan === 'pro'
+                  features: ['Безлимит', 'Мощные модели', 'Приоритет AI'],
+                  current: user?.plan === 'pro',
+                  color: 'amber'
                 }
               ].map((plan) => (
-                <div key={plan.name} className={`p-5 rounded-2xl border ${plan.current ? 'border-primary-500 bg-primary-50/30 dark:bg-primary-900/10' : 'border-slate-100 dark:border-slate-800'}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${plan.current ? 'bg-primary-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                <div key={plan.name} className={`relative p-8 rounded-[36px] border transition-all duration-500 flex flex-col ${
+                  plan.current 
+                    ? 'border-primary-500 bg-primary-50/20 dark:bg-primary-900/10 shadow-2xl shadow-primary-500/5 ring-4 ring-primary-500/5 scale-[1.02]' 
+                    : 'border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+                }`}>
+                  {plan.current && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary-500/20">
+                      Активен
+                    </div>
+                  )}
+                  <div className="flex justify-between items-start mb-6">
+                    <span className={`text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest ${
+                      plan.current ? 'bg-primary-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                    }`}>
                       {plan.name}
                     </span>
-                    <span className="font-bold text-slate-900 dark:text-white">{plan.price}</span>
+                    <span className="text-xl font-black text-slate-900 dark:text-white">{plan.price}</span>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className="space-y-4 flex-1">
                     {plan.features.map((f, i) => (
-                      <li key={i} className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                      <li key={i} className="text-[10px] text-slate-500 dark:text-slate-400 font-bold flex items-center gap-3">
+                        <div className={`w-1.5 h-1.5 rounded-full ${plan.current ? 'bg-primary-500' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
                         {f}
                       </li>
                     ))}
@@ -197,40 +282,55 @@ const Settings = () => {
                 </div>
               ))}
             </div>
-          </section>
+          </motion.section>
 
           {/* Interface Section */}
-          <section className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
-             <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
-                <Layout size={20} />
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-slate-900 rounded-[48px] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/10 dark:shadow-none"
+          >
+            <div className="flex items-center gap-4 mb-10">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50">
+                <Sun size={24} />
               </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Интерфейс</h2>
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Интерфейс</h2>
+                <p className="text-xs text-slate-400 font-bold tracking-widest uppercase mt-1">Визуальные настройки</p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Тема оформления</h3>
-                <p className="text-xs text-slate-500">Выберите светлую или темную тему</p>
-              </div>
-              <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                <button 
-                  onClick={() => handleSaveSetting('theme', 'light')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${settings.theme === 'light' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  <Sun size={14} />
-                  Светлая
-                </button>
-                <button 
-                  onClick={() => handleSaveSetting('theme', 'dark')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${settings.theme === 'dark' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-400'}`}
-                >
-                  <Moon size={14} />
-                  Темная
-                </button>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <button 
+                onClick={() => handleSaveSetting('theme', 'light')}
+                className={`p-8 rounded-[36px] border flex flex-col items-center gap-4 transition-all duration-500 ${
+                  settings.theme === 'light' 
+                    ? 'border-primary-500 bg-primary-50/20 shadow-xl shadow-primary-500/5' 
+                    : 'border-slate-100 hover:border-slate-200'
+                }`}
+              >
+                <div className={`p-4 rounded-2xl ${settings.theme === 'light' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'bg-slate-100 text-slate-400'}`}>
+                  <Sun size={24} />
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-900">Светлая тема</span>
+              </button>
+
+              <button 
+                onClick={() => handleSaveSetting('theme', 'dark')}
+                className={`p-8 rounded-[36px] border flex flex-col items-center gap-4 transition-all duration-500 ${
+                  settings.theme === 'dark' 
+                    ? 'border-primary-500 bg-slate-800 shadow-xl shadow-primary-500/10' 
+                    : 'border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div className={`p-4 rounded-2xl ${settings.theme === 'dark' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'bg-slate-700 text-slate-500'}`}>
+                  <Moon size={24} />
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest text-white">Темная тема</span>
+              </button>
             </div>
-          </section>
+          </motion.section>
         </div>
       </div>
     </div>
